@@ -1,7 +1,6 @@
 import {
   CanActivate,
   ExecutionContext,
-  Inject,
   Injectable,
   Logger,
   UnauthorizedException,
@@ -19,19 +18,12 @@ import { CacheConstant } from '../caching/cache.constant';
 
 @Injectable()
 export class AuthGuard extends HttpClientBase implements CanActivate {
-  @Inject(JwtService)
-  private jwtService: JwtService;
-
-  @Inject(Reflector)
-  private reflector: Reflector;
-
-  @Inject(CachingService)
-  private cachingService: CachingService;
-
-  @Inject(ConfigService)
-  private configService: ConfigService;
-
-  constructor() {
+  constructor(
+    private jwtService: JwtService,
+    private reflector: Reflector,
+    private cachingService: CachingService,
+    private configService: ConfigService,
+  ) {
     super();
     this.logger = new Logger(AuthGuard.name);
     this.initConfig({
