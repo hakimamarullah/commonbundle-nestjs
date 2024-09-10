@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import { HttpMethodType } from './enum/http-method.enum';
+import { HttpMethodType } from './enum';
 import { ConfigService } from '@nestjs/config';
 
 export interface InitialConfigOptions {
