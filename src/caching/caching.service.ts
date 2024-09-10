@@ -76,6 +76,28 @@ export class CachingService {
     return await this.wrapper(() => this.cacheManager.reset());
   }
 
+  async resetAllValuesKeyStartWith(prefix: string): Promise<void> {
+    const allKeys: string[] =
+      (await this.cacheManager.store.keys(prefix)) ?? [];
+    await this.cacheManager.store.mdel(...allKeys);
+  }
+
+  async resetProvinsi() {
+    await this.resetAllValuesKeyStartWith(CacheConstant.CacheKey.PROVINSI);
+  }
+
+  async resetKabupaten() {
+    await this.resetAllValuesKeyStartWith(CacheConstant.CacheKey.KABUPATEN);
+  }
+
+  async resetKecamatan() {
+    await this.resetAllValuesKeyStartWith(CacheConstant.CacheKey.KECAMATAN);
+  }
+
+  async resetKelurahan() {
+    await this.resetAllValuesKeyStartWith(CacheConstant.CacheKey.KELURAHAN);
+  }
+
   private async wrapper<T>(fn: () => Promise<T>) {
     try {
       return await fn();
