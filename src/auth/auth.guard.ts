@@ -4,7 +4,6 @@ import {
   Inject,
   Injectable,
   Logger,
-  OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -19,10 +18,7 @@ import { convertPatternToRegExp, convertTo } from '../common/utils';
 import { CacheConstant } from '../caching/cache.constant';
 
 @Injectable()
-export class AuthGuard
-  extends HttpClientBase
-  implements CanActivate, OnModuleInit
-{
+export class AuthGuard extends HttpClientBase implements CanActivate {
   @Inject(JwtService)
   private jwtService: JwtService;
 
@@ -34,6 +30,19 @@ export class AuthGuard
 
   @Inject(ConfigService)
   private configService: ConfigService;
+
+  constructor() {
+    super();
+    this.logger = new Logger(AuthGuard.name);
+    this.initConfig({
+      options: {
+        baseURL: this.configService.get<string>('AUTH_BASE_URL'),
+        headers: {
+          Authorization: `Bearer ${this.configService.get<string>('AUTH_BEARER_TOKEN')}`,
+        },
+      },
+    });
+  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC, [
@@ -133,15 +142,5 @@ export class AuthGuard
       );
     }
     return true;
-  }
-
-  async onModuleInit(): Promise<any> {
-    this.logger = new Logger(AuthGuard.name);
-    this.initConfig(false, {
-      baseURL: this.configService.get<string>('AUTH_BASE_URL', ''),
-      headers: {
-        Authorization: `Bearer ${this.configService.get<string>('AUTH_BEARER_TOKEN')}`,
-      },
-    });
   }
 }

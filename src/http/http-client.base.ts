@@ -6,6 +6,10 @@ import axios, {
 } from 'axios';
 import { HttpMethodType } from './enum';
 
+export interface InitClientOptions {
+  enableLogger?: boolean;
+  options?: CreateAxiosDefaults;
+}
 export abstract class HttpClientBase {
   protected httpClient: AxiosInstance;
   protected logger: Logger = new Logger(HttpClientBase.name);
@@ -49,10 +53,14 @@ export abstract class HttpClientBase {
   protected initClientLogger() {
     this.logger.debug('INITIATE HTTP CLIENT LOGGER');
     this.httpClient.interceptors.request.use((request) => {
-      const { method, url, headers, data } = request;
+      const { method, url, headers, data, baseURL } = request;
       this.logger.debug(
         'Starting Request',
-        JSON.stringify({ method, url, headers, data }, null, 2),
+        JSON.stringify(
+          { method, uri: `${baseURL}${url}`, headers, data },
+          null,
+          2,
+        ),
       );
       return request;
     });
@@ -65,22 +73,14 @@ export abstract class HttpClientBase {
     this.logger.debug('END INITIATE HTTP CLIENT LOGGER');
   }
 
-  /**
-   * Initializes the HTTP client configuration.
-   *
-   * This function sets up the HTTP client with the provided options and enables the logger if specified.
-   *
-   * @param {boolean} [enableLogger] - Whether to enable the HTTP client logger.
-   * @param {CreateAxiosDefaults} [options] - The options to configure the HTTP client.
-   * @return {void}
-   */
-  public initConfig(enableLogger?: boolean, options?: CreateAxiosDefaults) {
+  public initConfig(initConfig?: InitClientOptions) {
+    const { enableLogger = false, options = {} } = initConfig || {};
     this.httpClient = axios.create({
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        ...options?.headers,
+        ...((<any>options)?.headers ?? {}),
       },
       validateStatus: () => true,
       ...options,
