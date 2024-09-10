@@ -30,6 +30,7 @@ export abstract class HttpClientBase {
   }
 
   protected initLogger() {
+    this.logger.debug('INITIATE HTTP CLIENT LOGGER');
     this.httpClient.interceptors.request.use((request) => {
       const { method, url, headers, data } = request;
       this.logger.debug(
@@ -44,6 +45,7 @@ export abstract class HttpClientBase {
       this.logger.debug('Response:', JSON.stringify({ status, data }, null, 2));
       return response;
     });
+    this.logger.debug('END INITIATE HTTP CLIENT LOGGER');
   }
 
   public initConfig(

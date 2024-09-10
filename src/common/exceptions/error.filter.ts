@@ -9,12 +9,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { BaseResponse } from '../../http/dto/baseResponse.dto';
+import { BaseResponse } from '../../http/dto';
 import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
 } from '@prisma/client/runtime/library';
-import { translatePrismaError } from '../utils/common.util';
+import { translatePrismaError } from '../utils';
 
 @Catch(Error)
 export class ErrorFilter implements ExceptionFilter<Error> {

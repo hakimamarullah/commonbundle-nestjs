@@ -1,9 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { JwtModuleOptions, JwtOptionsFactory } from '@nestjs/jwt';
 import * as process from 'process';
 import { ConfigService } from '@nestjs/config';
 import { HttpClientBase } from '../http/http-client.base';
-import { HttpMethod } from '../http/enum/http-method.enum';
+import { HttpMethod } from '../http/enum';
 
 @Injectable()
 export class JwtConfigService

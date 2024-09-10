@@ -1,18 +1,19 @@
 {
   "name": "@hakimamarullah/commonbundle-nestjs",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Common bundle for NestJS",
   "author": "Hakim Amarullah <hakimamarullah@gmail.com>",
   "private": false,
   "license": "MIT",
   "readmeFilename": "README.md",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist/**/*",
     "*.md"
   ],
   "scripts": {
-    "build": "nest build",
+    "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",

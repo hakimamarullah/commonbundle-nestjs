@@ -1,8 +1,10 @@
 import {
   CanActivate,
   ExecutionContext,
+  Inject,
   Injectable,
   Logger,
+  OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -10,24 +12,28 @@ import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC } from './decorator/public.decorator';
 import { CachingService } from '../caching/caching.service';
-import { CacheConstant } from '../caching/cache.constant';
-import { convertPatternToRegExp, convertTo } from '../common/utils/common.util';
 import { HttpClientBase } from '../http/http-client.base';
 import { ConfigService } from '@nestjs/config';
-import { HttpMethod } from '../http/enum/http-method.enum';
+import { HttpMethod } from '../http/enum';
+import { convertPatternToRegExp, convertTo } from '../common/utils';
+import { CacheConstant } from '../caching/cache.constant';
 
 @Injectable()
-export class AuthGuard extends HttpClientBase implements CanActivate {
-  constructor(
-    private jwtService: JwtService,
-    private reflector: Reflector,
-    private cachingService: CachingService,
-    private configService: ConfigService,
-  ) {
-    super();
-    this.logger = new Logger(AuthGuard.name);
-    this.initConfig(this.configService);
-  }
+export class AuthGuard
+  extends HttpClientBase
+  implements CanActivate, OnModuleInit
+{
+  @Inject(JwtService)
+  private jwtService: JwtService;
+
+  @Inject(Reflector)
+  private reflector: Reflector;
+
+  @Inject(CachingService)
+  private cachingService: CachingService;
+
+  @Inject(ConfigService)
+  private configService: ConfigService;
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC, [
@@ -127,5 +133,10 @@ export class AuthGuard extends HttpClientBase implements CanActivate {
       );
     }
     return true;
+  }
+
+  async onModuleInit(): Promise<any> {
+    this.logger = new Logger(AuthGuard.name);
+    this.initConfig(this.configService);
   }
 }
