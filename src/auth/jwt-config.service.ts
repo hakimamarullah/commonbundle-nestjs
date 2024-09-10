@@ -1,21 +1,18 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { JwtModuleOptions, JwtOptionsFactory } from '@nestjs/jwt';
 import * as process from 'process';
-import { ConfigService } from '@nestjs/config';
 import { HttpClientBase } from '../http/http-client.base';
 import { HttpMethod } from '../http/enum';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtConfigService
   extends HttpClientBase
-  implements JwtOptionsFactory
+  implements JwtOptionsFactory, OnModuleInit
 {
   constructor(private configService: ConfigService) {
     super();
-    this.logger = new Logger(JwtConfigService.name);
-    this.initConfig(this.configService);
   }
-
   async createJwtOptions(): Promise<JwtModuleOptions> {
     const config = await this.loadJwtOptions();
     if (!config.secret || !config.signOptions) {
@@ -31,5 +28,15 @@ export class JwtConfigService
       `/jwt/config`,
     );
     return responseData as JwtModuleOptions;
+  }
+
+  async onModuleInit(): Promise<any> {
+    this.logger = new Logger(JwtConfigService.name);
+    this.initConfig(false, {
+      baseURL: this.configService.get<string>('AUTH_BASE_URL', ''),
+      headers: {
+        Authorization: `Bearer ${this.configService.get<string>('AUTH_BEARER_TOKEN')}`,
+      },
+    });
   }
 }

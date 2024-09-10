@@ -137,6 +137,11 @@ export class AuthGuard
 
   async onModuleInit(): Promise<any> {
     this.logger = new Logger(AuthGuard.name);
-    this.initConfig(this.configService);
+    this.initConfig(false, {
+      baseURL: this.configService.get<string>('AUTH_BASE_URL', ''),
+      headers: {
+        Authorization: `Bearer ${this.configService.get<string>('AUTH_BEARER_TOKEN')}`,
+      },
+    });
   }
 }

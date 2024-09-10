@@ -1,18 +1,27 @@
 import { Logger } from '@nestjs/common';
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, {
+  AxiosInstance,
+  AxiosRequestConfig,
+  CreateAxiosDefaults,
+} from 'axios';
 import { HttpMethodType } from './enum';
-import { ConfigService } from '@nestjs/config';
 
-export interface InitialConfigOptions {
-  BASE_URL_KEY_NAME?: string;
-  HTTP_CLIENT_TIMEOUT?: string;
-  AUTH_BEARER_TOKEN?: string;
-  validateStatus?: (status: number) => boolean;
-}
 export abstract class HttpClientBase {
   protected httpClient: AxiosInstance;
   protected logger: Logger = new Logger(HttpClientBase.name);
 
+  /**
+   * Handles an HTTP request using the configured HTTP client.
+   *
+   * This function sends an HTTP request to the specified path with the given method, payload, and configuration.
+   * It returns the data from the response.
+   *
+   * @param {HttpMethodType} method - The HTTP method to use for the request (e.g., GET, POST, PUT, etc.)
+   * @param {string} path - The URL path for the request
+   * @param {Record<string, any>} [payload] - The request payload (optional)
+   * @param {AxiosRequestConfig} [config] - The request configuration (optional)
+   * @return {any} The data from the response
+   */
   protected async handleRequest(
     method: HttpMethodType,
     path: string,
@@ -29,7 +38,15 @@ export abstract class HttpClientBase {
     return data;
   }
 
-  protected initLogger() {
+  /**
+   * Initializes the HTTP client logger.
+   *
+   * This function sets up interceptors for the HTTP client to log the request and response.
+   * It logs the request details and the response status and data.
+   *
+   * @return {void}
+   */
+  protected initClientLogger() {
     this.logger.debug('INITIATE HTTP CLIENT LOGGER');
     this.httpClient.interceptors.request.use((request) => {
       const { method, url, headers, data } = request;
@@ -48,36 +65,29 @@ export abstract class HttpClientBase {
     this.logger.debug('END INITIATE HTTP CLIENT LOGGER');
   }
 
-  public initConfig(
-    configService: ConfigService,
-    options?: InitialConfigOptions,
-  ) {
-    const {
-      BASE_URL_KEY_NAME,
-      HTTP_CLIENT_TIMEOUT,
-      AUTH_BEARER_TOKEN,
-      validateStatus,
-    } = options || {};
+  /**
+   * Initializes the HTTP client configuration.
+   *
+   * This function sets up the HTTP client with the provided options and enables the logger if specified.
+   *
+   * @param {boolean} [enableLogger] - Whether to enable the HTTP client logger.
+   * @param {CreateAxiosDefaults} [options] - The options to configure the HTTP client.
+   * @return {void}
+   */
+  public initConfig(enableLogger?: boolean, options?: CreateAxiosDefaults) {
     this.httpClient = axios.create({
-      baseURL: configService.get<string>(
-        BASE_URL_KEY_NAME ?? 'AUTH_BASE_URL',
-        'http://localhost:3000',
-      ),
-      timeout: configService.get<number>(
-        HTTP_CLIENT_TIMEOUT ?? 'HTTP_CLIENT_TIMEOUT',
-        10000,
-      ),
+      timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        Authorization: `Bearer ${configService.get<string>(AUTH_BEARER_TOKEN ?? 'AUTH_BEARER_TOKEN')}`,
+        ...options?.headers,
       },
-      validateStatus: validateStatus ?? (() => true),
+      validateStatus: () => true,
+      ...options,
     });
 
-    const activateLogging = configService.get<boolean>('AXIOS_LOGGING', false);
-    if (activateLogging) {
-      this.initLogger();
+    if (enableLogger) {
+      this.initClientLogger();
     }
   }
 }
