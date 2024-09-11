@@ -10,7 +10,7 @@ export declare interface CacheOptions {
 @Injectable()
 export class CachingService {
   private logger: Logger = new Logger(CachingService.name);
-  private ttl = 60 * 60 * 24;
+  private ttl = 1800 * 60 * 24;
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
   async getDataOrElseGet(

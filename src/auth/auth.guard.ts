@@ -1,6 +1,8 @@
 import {
   CanActivate,
   ExecutionContext,
+  HttpException,
+  HttpStatus,
   Injectable,
   Logger,
   UnauthorizedException,
@@ -15,6 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import { HttpMethod } from '../http/enum';
 import { convertPatternToRegExp, convertTo } from '../common/utils';
 import { CacheConstant } from '../caching/cache.constant';
+import process from 'process';
 
 @Injectable()
 export class AuthGuard extends HttpClientBase implements CanActivate {
@@ -26,9 +29,15 @@ export class AuthGuard extends HttpClientBase implements CanActivate {
   ) {
     super();
     this.logger = new Logger(AuthGuard.name);
+    const authBaseURL = this.configService.get<string>('AUTH_BASE_URL');
+    if (!authBaseURL) {
+      this.logger.fatal('AUTH_BASE_URL is not provided');
+      process.exit(1);
+    }
     this.initConfig({
+      enableLogger: true,
       options: {
-        baseURL: this.configService.get<string>('AUTH_BASE_URL'),
+        baseURL: authBaseURL,
         headers: {
           Authorization: `Bearer ${this.configService.get<string>('AUTH_BEARER_TOKEN')}`,
         },
@@ -61,6 +70,9 @@ export class AuthGuard extends HttpClientBase implements CanActivate {
       this.checkIsAllowed(pathsSet, request.path);
       (request as any)['user'] = payload;
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new UnauthorizedException(error.message);
     }
     return true;
@@ -129,8 +141,9 @@ export class AuthGuard extends HttpClientBase implements CanActivate {
       pattern.test(path),
     );
     if (!pathPatternSet?.size || !anyMatchedPath) {
-      throw new UnauthorizedException(
+      throw new HttpException(
         'You are not allowed to access this path',
+        HttpStatus.FORBIDDEN,
       );
     }
     return true;
