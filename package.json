@@ -1,6 +1,6 @@
 {
   "name": "@hakimamarullah/commonbundle-nestjs",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Common bundle for NestJS",
   "author": "Hakim Amarullah <hakimamarullah@gmail.com>",
   "private": false,
