@@ -81,7 +81,7 @@ export class ErrorFilter implements ExceptionFilter<Error> {
 
     try {
       // Format the errors in the desired format: fieldName: [error messages]
-      const formattedErrors = {};
+      const formattedErrors = {} as any;
       validationErrors.forEach((error: any) => {
         const field = error.property;
         formattedErrors[field] = Object.values(error.constraints);
