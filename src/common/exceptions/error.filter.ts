@@ -67,12 +67,29 @@ export class ErrorFilter implements ExceptionFilter<Error> {
     } else if (e instanceof BadRequestException) {
       response.responseCode = HttpStatus.BAD_REQUEST;
       response.responseMessage = e.message;
-      response.responseData = (e.getResponse() as any)?.message;
+      response.responseData = this.mapValidationError(e);
     } else {
       response.responseCode = this.getResponseCode(e);
       response.responseMessage = e.message;
       response.responseData = request.url;
     }
     return response;
+  }
+
+  mapValidationError(error: any): any {
+    const validationErrors = error.message;
+
+    try {
+      // Format the errors in the desired format: fieldName: [error messages]
+      const formattedErrors = {};
+      validationErrors.forEach((error: any) => {
+        const field = error.property;
+        formattedErrors[field] = Object.values(error.constraints);
+      });
+      return formattedErrors;
+    } catch (error) {
+      this.logger.debug(error);
+      return validationErrors;
+    }
   }
 }
