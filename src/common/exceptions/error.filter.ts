@@ -82,13 +82,14 @@ export class ErrorFilter implements ExceptionFilter<Error> {
     try {
       // Format the errors in the desired format: fieldName: [error messages]
       const formattedErrors = {} as any;
-      validationErrors.forEach((error: any) => {
+      const response = error.getResponse()?.message;
+      response.forEach((error: any) => {
         const field = error.property;
         formattedErrors[field] = Object.values(error.constraints);
       });
       return formattedErrors;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      this.logger.debug(error);
       return validationErrors;
     }
   }
