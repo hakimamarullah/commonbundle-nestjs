@@ -1,0 +1,35 @@
+name: Build and Push Docker image to Docker Hub
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build_and_publish:
+    name: Build, Publish, and Push Docker image to Docker Hub
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20' # Adjust to your desired Node.js version
+
+      - name: Set up .npmrc
+        run: |
+          echo "${{ secrets.NPMRC_CONTENT }}" > .npmrc
+        env:
+          NPMRC_CONTENT: ${{ secrets.NPMRC_CONTENT }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Publish package
+        run: npm publish

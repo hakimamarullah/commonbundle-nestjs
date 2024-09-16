@@ -208,3 +208,44 @@ export const generateApiKey = (): string => {
     .export()
     .toString('hex');
 };
+
+/**
+ * Convert a string representing a time duration to its equivalent value in milliseconds.
+ *
+ * The input string should be in the format of a number followed by an optional unit.
+ * Supported units are:
+ *   - 's' for seconds
+ *   - 'm' for minutes
+ *   - 'h' for hours
+ *   - 'd' for days
+ *   - No unit (default) for milliseconds
+ *
+ * @param {string} stringUnit The input string representing the time duration.
+ * @returns {number} The equivalent time duration in milliseconds.
+ * @throws {Error} If the input string is invalid.
+ */
+export const stringTimeunitToMillis = (stringUnit: string): number => {
+  // Default to milliseconds if no unit is specified
+  const timeUnit = stringUnit.slice(-1).toLowerCase();
+  const timeValue = parseInt(stringUnit.slice(0, -1), 10);
+
+  // Check if time unit is valid
+  if (isNaN(timeValue)) {
+    throw new Error('Invalid time value');
+  }
+
+  switch (timeUnit) {
+    case 's': // Seconds
+      return timeValue * 1000;
+    case 'm': // Minutes
+      return timeValue * 60 * 1000;
+    case 'h': // Hours
+      return timeValue * 60 * 60 * 1000;
+    case 'd': // Days
+      return timeValue * 24 * 60 * 60 * 1000;
+    case '': // No unit specified, assume milliseconds
+      return timeValue;
+    default:
+      throw new Error('Invalid time unit');
+  }
+};
