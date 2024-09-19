@@ -6,6 +6,7 @@ export { CachingService } from './caching/caching.service';
 export { CachingModule } from './caching/caching.module';
 export { HtmlTemplateService } from './html-template/html-template.service';
 export { HtmlTemplateModule } from './html-template/html-template.module';
+export { CONFIG_OPTIONS } from './html-template/config-options.token';
 
 export { default as cachingConfig } from './common/config/caching.config';
 export * from './caching/cache.constant';

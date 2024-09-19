@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
-import { MODULE_OPTIONS_TOKEN } from './html-template.module-definition'; // Adjust the path as necessary
+import { CONFIG_OPTIONS } from './config-options.token';
 
 const readdir = promisify(fs.readdir);
 const readFile = promisify(fs.readFile);
@@ -13,9 +13,7 @@ export class HtmlTemplateService implements OnModuleInit {
   private templates: Map<string, string> = new Map();
   private readonly placeholderPattern = /{{(\w+)}}/g;
 
-  constructor(
-    @Inject(MODULE_OPTIONS_TOKEN) private readonly config: Record<any, any>,
-  ) {}
+  constructor(@Inject(CONFIG_OPTIONS) private config: Record<string, any>) {}
 
   async onModuleInit() {
     await this.loadTemplates();
