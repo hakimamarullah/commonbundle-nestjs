@@ -12,7 +12,7 @@ export class HtmlTemplateService implements OnModuleInit {
   private templates: Map<string, string> = new Map();
   private readonly placeholderPattern = /{{(\w+)}}/g;
 
-  constructor(private assetsPath: string) {}
+  constructor(private readonly assetsPath: string) {}
 
   async onModuleInit() {
     await this.loadTemplates();
