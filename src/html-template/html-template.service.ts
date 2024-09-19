@@ -12,6 +12,8 @@ export class HtmlTemplateService implements OnModuleInit {
   private templates: Map<string, string> = new Map();
   private readonly placeholderPattern = /{{(\w+)}}/g;
 
+  constructor(private assetsPath: string) {}
+
   async onModuleInit() {
     await this.loadTemplates();
   }
@@ -20,22 +22,18 @@ export class HtmlTemplateService implements OnModuleInit {
     this.logger.log('[START] LOADING HTML TEMPLATE FILES');
 
     try {
-      // Path to the assets/templates directory
-      const templatesDir = path.join(
-        __dirname,
-        '..',
-        '..',
-        'assets',
-        'templates',
-      );
+      const templatesDir = path.join(this.assetsPath, 'templates');
       const files = await readdir(templatesDir);
 
       await Promise.all(
         files.map(async (file) => {
           if (file.endsWith('.html')) {
-            const content = await readFile(path.join(templatesDir, file));
+            const content = await readFile(
+              path.join(templatesDir, file),
+              'utf-8',
+            );
             const filename = file.replace('.html', '');
-            this.templates.set(filename, content?.toString('utf-8'));
+            this.templates.set(filename, content);
           }
         }),
       );
