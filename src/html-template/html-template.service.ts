@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
-import { ASSETS_PATH } from './assets-path.token'; // Adjust the path as necessary
+import { MODULE_OPTIONS_TOKEN } from './html-template.module-definition'; // Adjust the path as necessary
 
 const readdir = promisify(fs.readdir);
 const readFile = promisify(fs.readFile);
@@ -13,7 +13,9 @@ export class HtmlTemplateService implements OnModuleInit {
   private templates: Map<string, string> = new Map();
   private readonly placeholderPattern = /{{(\w+)}}/g;
 
-  constructor(@Inject(ASSETS_PATH) private readonly assetsPath: string) {}
+  constructor(
+    @Inject(MODULE_OPTIONS_TOKEN) private readonly config: Record<any, any>,
+  ) {}
 
   async onModuleInit() {
     await this.loadTemplates();
@@ -23,18 +25,15 @@ export class HtmlTemplateService implements OnModuleInit {
     this.logger.log('[START] LOADING HTML TEMPLATE FILES');
 
     try {
-      const templatesDir = path.join(this.assetsPath, 'templates');
+      const templatesDir = path.join(this.config.assetsDir, 'templates');
       const files = await readdir(templatesDir);
 
       await Promise.all(
         files.map(async (file) => {
           if (file.endsWith('.html')) {
-            const content = await readFile(
-              path.join(templatesDir, file),
-              'utf-8',
-            );
+            const content = await readFile(path.join(templatesDir, file));
             const filename = file.replace('.html', '');
-            this.templates.set(filename, content);
+            this.templates.set(filename, content?.toString('utf-8'));
           }
         }),
       );
