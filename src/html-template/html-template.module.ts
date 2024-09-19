@@ -1,5 +1,6 @@
-import { DynamicModule, Module, Provider } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { HtmlTemplateService } from './html-template.service';
+import { ASSETS_PATH } from './assets-path.token';
 
 @Module({
   providers: [HtmlTemplateService],
@@ -7,16 +8,16 @@ import { HtmlTemplateService } from './html-template.service';
 })
 export class HtmlTemplateModule {
   static forRoot(assetsPath: string): DynamicModule {
-    const htmlTemplateServiceProvider: Provider = {
-      provide: HtmlTemplateService,
-      useFactory: () => new HtmlTemplateService(assetsPath),
-    };
-
     return {
       module: HtmlTemplateModule,
-      providers: [htmlTemplateServiceProvider],
+      providers: [
+        {
+          provide: ASSETS_PATH,
+          useValue: assetsPath,
+        },
+        HtmlTemplateService,
+      ],
       exports: [HtmlTemplateService],
-      global: true,
     };
   }
 }

@@ -1,7 +1,8 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
+import { ASSETS_PATH } from './assets-path.token'; // Adjust the path as necessary
 
 const readdir = promisify(fs.readdir);
 const readFile = promisify(fs.readFile);
@@ -12,7 +13,7 @@ export class HtmlTemplateService implements OnModuleInit {
   private templates: Map<string, string> = new Map();
   private readonly placeholderPattern = /{{(\w+)}}/g;
 
-  constructor(private readonly assetsPath: string) {}
+  constructor(@Inject(ASSETS_PATH) private readonly assetsPath: string) {}
 
   async onModuleInit() {
     await this.loadTemplates();
