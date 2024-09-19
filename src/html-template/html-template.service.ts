@@ -52,15 +52,23 @@ export class HtmlTemplateService implements OnModuleInit {
     templateName: string,
     params: Record<string, any>,
   ): string {
-    const template = this.getTemplate(templateName);
+    let template = this.getTemplate(templateName);
     if (!template) {
       this.logger.warn(`Template "${templateName}" not found`);
       return '';
     }
 
-    return template.replace(this.placeholderPattern, (match, placeholder) => {
-      const replacement = params[placeholder];
-      return replacement !== undefined ? String(replacement) : match;
+    // Replace placeholders in the template with corresponding values from params
+    Object.keys(params).forEach((key) => {
+      const placeholder = `{{${key.toUpperCase()}}}`; // Use uppercase to match placeholders
+      if (template != null) {
+        template = template.replace(
+          new RegExp(placeholder, 'g'),
+          String(params[key]),
+        );
+      }
     });
+
+    return template; // Return the modified template
   }
 }
